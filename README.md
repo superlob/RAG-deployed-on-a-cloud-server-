@@ -2,6 +2,16 @@
 
 RAG app with chat and document ingestion interfaces.
 
+## Stack
+
+- Frontend: React + Vite + Tailwind + shadcn/ui
+- Backend: Python + FastAPI  
+- Database: PostgreSQL + pgvector
+- LLM: 
+  - Text Embeddings: Alibaba Cloud Bailian (qwen3.7-text-embedding)
+  - Chat: gpt-6-luna (via OpenAI-compatible API)
+- Observability: LangSmith
+
 ## 同时启动前后端（开发模式）
 
 打开两个终端窗口：
