@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAG 认证测试</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 420px;
+            padding: 40px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 24px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: border-color 0.2s;
+        }
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 12px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #666;
+        }
+        .btn-secondary:hover {
+            background: #e8e8e8;
+        }
+        .btn-danger {
+            background: #ff4757;
+            color: white;
+        }
+        .btn-danger:hover {
+            background: #ff3838;
+        }
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .message {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+        }
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .message.show {
+            display: block;
+        }
+        .user-info {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .user-info h2 {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .info-item:last-child {
+            border-bottom: none;
+        }
+        .info-label {
+            color: #666;
+            font-size: 14px;
+        }
+        .info-value {
+            color: #333;
+            font-weight: 500;
+            font-size: 14px;
+            font-family: monospace;
+        }
+        .hidden {
+            display: none !important;
+        }
+        .tabs {
+            display: flex;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        .tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            color: #666;
+            font-weight: 500;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.2s;
+        }
+        .tab:hover {
+            color: #667eea;
+        }
+        .tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .api-test {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+        }
+        .api-test h3 {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        .api-btn {
+            display: inline-block;
+            padding: 8px 16px;
+            margin: 5px;
+            border: 1px solid #667eea;
+            border-radius: 6px;
+            background: white;
+            color: #667eea;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        .api-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+        .response-box {
+            margin-top: 15px;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 12px;
+            color: #333;
+            min-height: 60px;
+            white-space: pre-wrap;
+            word-break: break-all;
+            max-height: 200px;
+            overflow: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 RAG 认证测试</h1>
+        <p class="subtitle">体验 JWT + Cookie 认证流程</p>
+
+        <div id="message" class="message"></div>
+
+        <!-- 未登录状态 -->
+        <div id="auth-forms">
+            <div class="tabs">
+                <div class="tab active" onclick="switchTab('login')">登录</div>
+                <div class="tab" onclick="switchTab('register')">注册</div>
+            </div>
+
+            <!-- 登录表单 -->
+            <div id="login-tab" class="tab-content active">
+                <div class="form-group">
+                    <label for="login-username">用户名</label>
+                    <input type="text" id="login-username" placeholder="请输入用户名" value="testuser">
+                </div>
+                <div class="form-group">
+                    <label for="login-password">密码</label>
+                    <input type="password" id="login-password" placeholder="请输入密码" value="testpass123">
+                </div>
+                <button class="btn btn-primary" onclick="login()">🚀 登录</button>
+            </div>
+
+            <!-- 注册表单 -->
+            <div id="register-tab" class="tab-content">
+                <div class="form-group">
+                    <label for="register-username">用户名</label>
+                    <input type="text" id="register-username" placeholder="3-64位字母数字下划线">
+                </div>
+                <div class="form-group">
+                    <label for="register-password">密码</label>
+                    <input type="password" id="register-password" placeholder="至少6位">
+                </div>
+                <button class="btn btn-primary" onclick="register()">✨ 注册新用户</button>
+            </div>
+        </div>
+
+        <!-- 已登录状态 -->
+        <div id="user-panel" class="hidden">
+            <div class="user-info">
+                <h2>👤 用户信息</h2>
+                <div class="info-item">
+                    <span class="info-label">用户 ID</span>
+                    <span class="info-value" id="user-id">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">用户名</span>
+                    <span class="info-value" id="user-name">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">注册时间</span>
+                    <span class="info-value" id="user-created">-</span>
+                </div>
+            </div>
+
+            <button class="btn btn-secondary" onclick="getMe()">🔄 刷新用户信息</button>
+            <button class="btn btn-secondary" onclick="refreshToken()">🔑 刷新 Token</button>
+            <button class="btn btn-danger" onclick="logout()">🚪 退出登录</button>
+        </div>
+
+        <!-- API 测试区域 -->
+        <div class="api-test">
+            <h3>📡 API 调试</h3>
+            <button class="api-btn" onclick="testGetMe()">GET /me</button>
+            <button class="api-btn" onclick="testRefresh()">POST /refresh</button>
+            <div id="response" class="response-box">// 点击上方按钮测试 API...</div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api/v1/auth';
+
+        // 显示消息
+        function showMessage(text, isError = false) {
+            const msg = document.getElementById('message');
+            msg.textContent = text;
+            msg.className = 'message ' + (isError ? 'error' : 'success') + ' show';
+            setTimeout(() => msg.classList.remove('show'), 5000);
+        }
+
+        // 切换标签
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelector(`.tab:nth-child(${tab === 'login' ? 1 : 2})`).classList.add('active');
+            document.getElementById(tab + '-tab').classList.add('active');
+        }
+
+        // 注册
+        async function register() {
+            const username = document.getElementById('register-username').value;
+            const password = document.getElementById('register-password').value;
+
+            if (!username || !password) {
+                showMessage('请输入用户名和密码', true);
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_BASE}/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await res.json();
+                if (res.ok) {
+                    showMessage(`✅ 注册成功！欢迎 ${data.username}`);
+                    document.getElementById('login-username').value = username;
+                    document.getElementById('login-password').value = password;
+                    switchTab('login');
+                } else {
+                    showMessage(`❌ ${data.detail || '注册失败'}`, true);
+                }
+            } catch (e) {
+                showMessage('❌ 网络错误', true);
+            }
+        }
+
+        // 登录
+        async function login() {
+            const username = document.getElementById('login-username').value;
+            const password = document.getElementById('login-password').value;
+
+            if (!username || !password) {
+                showMessage('请输入用户名和密码', true);
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_BASE}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await res.json();
+                if (res.ok) {
+                    showMessage(`✅ 登录成功！欢迎回来 ${data.user.username}`);
+                    showUserPanel(data.user);
+                } else {
+                    showMessage(`❌ ${data.detail || '登录失败'}`, true);
+                }
+            } catch (e) {
+                showMessage('❌ 网络错误', true);
+            }
+        }
+
+        // 显示用户面板
+        function showUserPanel(user) {
+            document.getElementById('auth-forms').classList.add('hidden');
+            document.getElementById('user-panel').classList.remove('hidden');
+            document.getElementById('user-id').textContent = user.id;
+            document.getElementById('user-name').textContent = user.username;
+            document.getElementById('user-created').textContent = new Date(user.created_at).toLocaleString('zh-CN');
+        }
+
+        // 获取用户信息
+        async function getMe() {
+            try {
+                const res = await fetch(`${API_BASE}/me`, { credentials: 'include' });
+                const data = await res.json();
+                if (res.ok) {
+                    showUserPanel(data);
+                    showMessage('✅ 用户信息已更新');
+                } else {
+                    showMessage('❌ 获取用户信息失败', true);
+                    if (res.status === 401) showLoginForm();
+                }
+            } catch (e) {
+                showMessage('❌ 网络错误', true);
+            }
+        }
+
+        // 刷新 Token
+        async function refreshToken() {
+            try {
+                const res = await fetch(`${API_BASE}/refresh`, {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    showMessage('✅ Token 已刷新');
+                } else {
+                    showMessage('❌ 刷新失败，请重新登录', true);
+                    if (res.status === 401) showLoginForm();
+                }
+            } catch (e) {
+                showMessage('❌ 网络错误', true);
+            }
+        }
+
+        // 登出
+        async function logout() {
+            try {
+                const res = await fetch(`${API_BASE}/logout`, {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+                if (res.ok) {
+                    showMessage('✅ 已退出登录');
+                    showLoginForm();
+                }
+            } catch (e) {
+                showMessage('❌ 网络错误', true);
+            }
+        }
+
+        // 显示登录表单
+        function showLoginForm() {
+            document.getElementById('auth-forms').classList.remove('hidden');
+            document.getElementById('user-panel').classList.add('hidden');
+            document.getElementById('user-id').textContent = '-';
+            document.getElementById('user-name').textContent = '-';
+            document.getElementById('user-created').textContent = '-';
+        }
+
+        // API 测试函数
+        async function testGetMe() {
+            const start = Date.now();
+            try {
+                const res = await fetch(`${API_BASE}/me`, { credentials: 'include' });
+                const data = await res.json();
+                const elapsed = Date.now() - start;
+                document.getElementById('response').textContent =
+                    `GET /api/v1/auth/me\nStatus: ${res.status} ${res.statusText}\nTime: ${elapsed}ms\n\n${JSON.stringify(data, null, 2)}`;
+            } catch (e) {
+                document.getElementById('response').textContent = `Error: ${e.message}`;
+            }
+        }
+
+        async function testRefresh() {
+            const start = Date.now();
+            try {
+                const res = await fetch(`${API_BASE}/refresh`, {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+                const data = await res.json();
+                const elapsed = Date.now() - start;
+                document.getElementById('response').textContent =
+                    `POST /api/v1/auth/refresh\nStatus: ${res.status} ${res.statusText}\nTime: ${elapsed}ms\n\n${JSON.stringify(data, null, 2)}`;
+            } catch (e) {
+                document.getElementById('response').textContent = `Error: ${e.message}`;
+            }
+        }
+
+        // 页面加载时检查登录状态
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const res = await fetch(`${API_BASE}/me`, { credentials: 'include' });
+                if (res.ok) {
+                    const user = await res.json();
+                    showUserPanel(user);
+                }
+            } catch (e) {
+                // 未登录，保持登录表单显示
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,48 @@
+[project]
+name = "rag"
+version = "0.1.0"
+description = "RAG app with chat and document ingestion interfaces"
+readme = "README.md"
+authors = [
+    { name = "buer", email = "2141185108@qq.com" }
+]
+requires-python = ">=3.13"
+dependencies = [
+    "asyncpg>=0.31.0",
+    "bcrypt>=4.0.0",
+    "fastapi>=0.141.1",
+    "httpx",
+    "openai>=3.23.0",
+    "pydantic-settings>=2.15.0",
+    "pypdf",
+    "python-docx",
+    "python-jose[cryptography]>=3.5.0",
+    "python-multipart>=0.0.32",
+    "uvicorn[standard]>=0.53.0",
+]
+
+[project.scripts]
+rag = "rag.main:main"
+
+[build-system]
+requires = ["uv_build>=0.12.15,<0.13.0"]
+build-backend = "uv_build"
+
+[[tool.uv.index]]
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+default = true
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+    "pytest-asyncio>=1.4.0",
+    "reportlab>=5.0.1",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+asyncio_default_test_loop_scope = "session"
+markers = [
+    "live: 需要真实外部服务（LLM API）的集成测试，仅在 RUN_LIVE_TESTS=1 时运行",
+]
